@@ -49,7 +49,7 @@ jobs:
             && command -v migrate
 
     - name: Run migration
-       run: make migrateup
+      run: make migrateup
 
     - name: Test
-       run: make test
+      run: make test
