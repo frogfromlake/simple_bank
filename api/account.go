@@ -82,7 +82,7 @@ func (server *Server) getAccount(ctx *gin.Context) {
 }
 
 type listAccountRequest struct {
-	PageID int32 `form:"page_id" binding:"required,min=1"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
@@ -94,7 +94,7 @@ func (server *Server) listAccount(ctx *gin.Context) {
 	}
 
 	arg := db.ListAccountsParams{
-		Limit: req.PageSize,
+		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
@@ -108,8 +108,10 @@ func (server *Server) listAccount(ctx *gin.Context) {
 }
 
 type updateAccountRequest struct {
-	ID      int64 `json:"id" binding:"required,min=1"`
-	Balance int64 `json:"balance" binding:"omitempty"`
+    ID       int64  `json:"id" binding:"required,min=1"`
+    Owner    string `json:"owner"`
+    Balance  int64  `json:"balance" binding:"omitempty,min=0"`
+    Currency string `json:"currency"`
 }
 
 func (server *Server) updateAccount(ctx *gin.Context) {
@@ -119,9 +121,27 @@ func (server *Server) updateAccount(ctx *gin.Context) {
 		return
 	}
 
+	// Get the current account to preserve fields not updated
+	currentAccount, err := server.store.GetAccount(ctx, req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Use the existing value if not present in the request
+	if len(req.Owner) == 0 {
+		req.Owner = currentAccount.Owner
+	}
+
+	if len(req.Currency) == 0 {
+		req.Currency = currentAccount.Currency
+	}
+
 	arg := db.UpdateAccountParams{
-		ID: req.ID,
-		Balance: req.Balance,
+		ID:       req.ID,
+		Owner:    req.Owner,
+		Balance:  req.Balance,
+		Currency: req.Currency,
 	}
 
 	account, err := server.store.UpdateAccount(ctx, arg)
@@ -131,4 +151,3 @@ func (server *Server) updateAccount(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, account)
 }
-
