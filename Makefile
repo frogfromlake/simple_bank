@@ -13,10 +13,10 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
 
-# ================================================== #
-
 psql:
 	docker exec -it postgres12 psql -U root -d  simple_bank
+
+# ================================================== #
 
 sqlc:
 	sqlc generate
