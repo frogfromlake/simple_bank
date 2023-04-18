@@ -1,9 +1,11 @@
 package api
 
+// Handler functions
+
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/techschool/simplebank/db/sqlc"
@@ -11,7 +13,7 @@ import (
 
 type CreateAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
+	Currency string `json:"currency" binding:"required,currency"`
 }
 
 func (server *Server) createAccount(ctx *gin.Context) {
@@ -36,28 +38,33 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, account)
 }
 
+type getAccountRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
 func (server *Server) deleteAccount(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
+	var req getAccountRequest
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	_, err = server.store.DeleteAccount(ctx, id)
+	fmt.Println("id:",  req.ID)
+	_, err := server.store.DeleteAccount(ctx,  req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			fmt.Println("code: ")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		} else {
+			} else if err == sql.ErrConnDone {
+				ctx.JSON(http.StatusBadRequest, errorResponse(err))
+			}else {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
 		return
 	}
 
 	ctx.Status(http.StatusNoContent)
-}
-
-type getAccountRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 func (server *Server) getAccount(ctx *gin.Context) {
@@ -139,9 +146,9 @@ func (server *Server) updateAccount(ctx *gin.Context) {
 
 	arg := db.UpdateAccountParams{
 		ID:       req.ID,
-		Owner:    req.Owner,
+		// Owner:    req.Owner,
 		Balance:  req.Balance,
-		Currency: req.Currency,
+		// Currency: req.Currency,
 	}
 
 	account, err := server.store.UpdateAccount(ctx, arg)

@@ -96,11 +96,12 @@ func (mr *MockStoreMockRecorder) CreateTransfer(arg0, arg1 interface{}) *gomock.
 }
 
 // DeleteAccount mocks base method.
-func (m *MockStore) DeleteAccount(arg0 context.Context, arg1 int64) error {
+func (m *MockStore) DeleteAccount(arg0 context.Context, arg1 int64) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteAccount", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // DeleteAccount indicates an expected call of DeleteAccount.
@@ -215,7 +216,7 @@ func (mr *MockStoreMockRecorder) ListTransfers(arg0, arg1 interface{}) *gomock.C
 }
 
 // TransferTransaction mocks base method.
-func (m *MockStore) TransferTransaction(arg0 context.Context, arg1 db.CreateTransferParams) (db.TransferTxResults, error) {
+func (m *MockStore) TransferTransaction(arg0 context.Context, arg1 db.TransferTxParams) (db.TransferTxResults, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TransferTransaction", arg0, arg1)
 	ret0, _ := ret[0].(db.TransferTxResults)

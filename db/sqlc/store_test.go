@@ -26,7 +26,7 @@ func TestTransferTransaction(t *testing.T) {
 	for i := 0; i < n; i++ {
 		go func() {
 			ctx := context.Background()
-			result, err := store.TransferTransaction(ctx, CreateTransferParams{
+			result, err := store.TransferTransaction(ctx, TransferTxParams{
 				FromAccountID: account1.ID,
 				ToAccountID:   account2.ID,
 				Amount:        amount,
@@ -141,7 +141,7 @@ func TestTransferTransactionDeadlock(t *testing.T) {
 
 		go func() {
 			ctx := context.Background()
-			_, err := store.TransferTransaction(ctx, CreateTransferParams{
+			_, err := store.TransferTransaction(ctx, TransferTxParams{
 				FromAccountID: fromAccountID,
 				ToAccountID:   toAccountID,
 				Amount:        amount,
