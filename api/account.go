@@ -35,7 +35,7 @@ func (server *Server) createAccount(ctx *gin.Context) {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, errorResponse(err))
-				return	
+				return
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -57,13 +57,13 @@ func (server *Server) deleteAccount(ctx *gin.Context) {
 		return
 	}
 
-	_, err := server.store.DeleteAccount(ctx,  req.ID)
+	_, err := server.store.DeleteAccount(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
-			} else if err == sql.ErrConnDone {
-				ctx.JSON(http.StatusBadRequest, errorResponse(err))
-			}else {
+		} else if err == sql.ErrConnDone {
+			ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		} else {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
 		return
@@ -120,10 +120,10 @@ func (server *Server) listAccount(ctx *gin.Context) {
 }
 
 type updateAccountRequest struct {
-    ID       int64  `json:"id" binding:"required,min=1"`
-    Owner    string `json:"owner"`
-    Balance  int64  `json:"balance" binding:"omitempty,min=0"`
-    Currency string `json:"currency"`
+	ID       int64  `json:"id" binding:"required,min=1"`
+	Owner    string `json:"owner"`
+	Balance  int64  `json:"balance" binding:"omitempty,min=0"`
+	Currency string `json:"currency"`
 }
 
 func (server *Server) updateAccount(ctx *gin.Context) {
@@ -150,9 +150,9 @@ func (server *Server) updateAccount(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateAccountParams{
-		ID:       req.ID,
+		ID: req.ID,
 		// Owner:    req.Owner,
-		Balance:  req.Balance,
+		Balance: req.Balance,
 		// Currency: req.Currency,
 	}
 

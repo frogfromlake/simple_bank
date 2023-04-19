@@ -176,13 +176,13 @@ func TestDeleteAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "InvalidRequest",
-			accountID: -1,
+			name:       "InvalidRequest",
+			accountID:  -1,
 			buildStubs: func(store *mockdb.MockStore) {},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
-		},		
+		},
 	}
 
 	for i := range testCases {
@@ -428,10 +428,10 @@ func TestUpdateAccountAPI(t *testing.T) {
 					Return(account, nil)
 
 				arg := db.UpdateAccountParams{
-					ID:       account.ID,
+					ID: account.ID,
 					// Owner:    account.Owner,
 					// Currency: account.Currency,
-					Balance:  account.Balance,
+					Balance: account.Balance,
 				}
 
 				store.EXPECT().
@@ -455,10 +455,10 @@ func TestUpdateAccountAPI(t *testing.T) {
 			buildStubs: func(store *mockdb.MockStore) {
 
 				arg := db.UpdateAccountParams{
-					ID:       -1,
+					ID: -1,
 					// Owner:    account.Owner,
 					// Currency: account.Currency,
-					Balance:  account.Balance,
+					Balance: account.Balance,
 				}
 
 				store.EXPECT().
@@ -484,10 +484,10 @@ func TestUpdateAccountAPI(t *testing.T) {
 					Return(account, nil)
 
 				arg := db.UpdateAccountParams{
-					ID:       account.ID,
+					ID: account.ID,
 					// Owner:    account.Owner,
 					// Currency: account.Currency,
-					Balance:  account.Balance,
+					Balance: account.Balance,
 				}
 
 				store.EXPECT().
@@ -500,7 +500,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "InternalErrorGetAccount",
+			name:      "InternalErrorGetAccount",
 			accountID: -1,
 			body: gin.H{
 				"id":       account.ID,
@@ -519,11 +519,11 @@ func TestUpdateAccountAPI(t *testing.T) {
 			},
 		},
 		{
-			name: "EmptyOwnerCurrencyFields",
+			name:      "EmptyOwnerCurrencyFields",
 			accountID: account.ID,
 			body: gin.H{
-				"id":       account.ID,
-				"balance":  account.Balance,
+				"id":      account.ID,
+				"balance": account.Balance,
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				currentAccount := account
@@ -533,14 +533,14 @@ func TestUpdateAccountAPI(t *testing.T) {
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
 					Times(1).
 					Return(currentAccount, nil)
-		
+
 				arg := db.UpdateAccountParams{
-					ID:       account.ID,
+					ID: account.ID,
 					// Owner:    currentAccount.Owner,
 					// Currency: account.Currency,
-					Balance:  account.Balance,
+					Balance: account.Balance,
 				}
-		
+
 				store.EXPECT().
 					UpdateAccount(gomock.Any(), gomock.Eq(arg)).
 					Times(1).
@@ -553,7 +553,7 @@ func TestUpdateAccountAPI(t *testing.T) {
 				var updatedAccount db.Account
 				err := json.Unmarshal(recorder.Body.Bytes(), &updatedAccount)
 				require.NoError(t, err)
-		
+
 				require.Equal(t, account.ID, updatedAccount.ID)
 				require.Equal(t, "new owner", updatedAccount.Owner)
 				require.Equal(t, account.Currency, updatedAccount.Currency)

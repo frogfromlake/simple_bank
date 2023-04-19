@@ -106,7 +106,7 @@ func TestTransferTransaction(t *testing.T) {
 
 	updatedAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
 	require.NoError(t, err)
-	
+
 	require.Equal(t, account1.Balance-int64(n)*amount, updatedAccount1.Balance)
 	require.Equal(t, account2.Balance+int64(n)*amount, updatedAccount2.Balance)
 }
@@ -127,7 +127,7 @@ func TestTransferTransactionDeadlock(t *testing.T) {
 		fromAccountID := account1.ID
 		toAccountID := account2.ID
 
-		if i % 2 == 1 {
+		if i%2 == 1 {
 			fromAccountID = account2.ID
 			toAccountID = account1.ID
 		}

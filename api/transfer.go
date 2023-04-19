@@ -32,10 +32,10 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.TransferTxParams {
+	arg := db.TransferTxParams{
 		FromAccountID: req.FromAccountID,
-		ToAccountID: req.ToAccountID,
-		Amount: req.Amount,
+		ToAccountID:   req.ToAccountID,
+		Amount:        req.Amount,
 	}
 
 	result, err := server.store.TransferTransaction(ctx, arg)
@@ -61,7 +61,7 @@ func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency s
 
 	if account.Currency != currency {
 		err := fmt.Errorf("account [%d] mismatch: %s vs %s", account.ID, account.Currency, currency)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err ))
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return false
 	}
 
