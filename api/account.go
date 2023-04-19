@@ -4,7 +4,6 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -58,11 +57,9 @@ func (server *Server) deleteAccount(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("id:",  req.ID)
 	_, err := server.store.DeleteAccount(ctx,  req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmt.Println("code: ")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			} else if err == sql.ErrConnDone {
 				ctx.JSON(http.StatusBadRequest, errorResponse(err))
