@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: simplebank
+  name: simplebank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simplebank
+  template:
+    metadata:
+      labels:
+        app: simplebank
+    spec:
+      containers:
+        - name: simplebank-postgres
+          image: registry.localhost:5000/postgres:12-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: root
+            - name: POSTGRES_PASSWORD
+              value: secret
+            - name: POSTGRES_DB
+              value: simple_bank
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+        - name: simplebank-api
+          image: registry.localhost:5000/simplebank-api:12-alpine
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: "0.5"
+            requests:
+              memory: 128Mi
+              cpu: "0.1"
+          imagePullPolicy: IfNotPresent
