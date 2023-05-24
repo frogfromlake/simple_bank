@@ -136,7 +136,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		UserAgent:    ctx.Request.UserAgent(),
 		ClientIp:     ctx.ClientIP(),
 		IsBlocked:    false,
-		ExpiredAt:    refreshPayload.ExpiredAt,
+		ExpiresAt:    refreshPayload.ExpiredAt,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

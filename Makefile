@@ -33,6 +33,12 @@ migratedown:
 migratedown1:
 	migrate -path db/migration -database $(POSTGRES_URL) -verbose down 1
 
+db_docs:
+	dbdocs build doc/db.dbml
+
+db_schema:
+	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
+
 # ================================================== #
 
 sqlc:
@@ -45,6 +51,8 @@ proto:
 	rm -f pb/*.go
 	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
 	--go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+	--grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
+	--openapiv2_out=
    	proto/*.proto
 
 # ================================================== #
@@ -96,7 +104,7 @@ cluster:
 	sleep 2
 	make deployments
 
-.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush reset proto evans
+.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush reset proto evans
 
 # Deployment
 # ================================================== #

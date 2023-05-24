@@ -59,7 +59,7 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	if time.Now().After(session.ExpiredAt) {
+	if time.Now().After(session.ExpiresAt) {
 		err := fmt.Errorf("expired session")
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return

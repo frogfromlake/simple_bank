@@ -20,7 +20,7 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	arg := db.CreateUserParams{
 		Username:       req.GetUsername(),
 		HashedPassword: hashedPassword,
-		FullName:       req.GetFullname(),
+		FullName:       req.GetFullName(),
 		Email:          req.GetEmail(),
 	}
 

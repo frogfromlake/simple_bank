@@ -9,7 +9,7 @@ option go_package = "github.com/techschool/simplebank/pb";
 
 message LoginUserRequest {
     string username = 1;
-    string password = 4;
+    string password = 2;
 }
 
 message LoginUserResponse {
