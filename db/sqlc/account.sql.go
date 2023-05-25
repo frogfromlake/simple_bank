@@ -36,9 +36,9 @@ func (q *Queries) AddAccountBalance(ctx context.Context, arg AddAccountBalancePa
 
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO accounts (
-    owner,
-    balance,
-    currency
+  owner,
+  balance,
+  currency
 ) VALUES (
   $1, $2, $3
 ) RETURNING id, owner, balance, currency, created_at
@@ -63,14 +63,14 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 	return i, err
 }
 
-const deleteAccount = `-- name: DeleteAccount :one
-DELETE FROM accounts WHERE id = $1 RETURNING id
+const deleteAccount = `-- name: DeleteAccount :exec
+DELETE FROM accounts
+WHERE id = $1
 `
 
-func (q *Queries) DeleteAccount(ctx context.Context, id int64) (int64, error) {
-	row := q.db.QueryRowContext(ctx, deleteAccount, id)
-	err := row.Scan(&id)
-	return id, err
+func (q *Queries) DeleteAccount(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAccount, id)
+	return err
 }
 
 const getAccount = `-- name: GetAccount :one

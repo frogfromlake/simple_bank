@@ -1,8 +1,8 @@
 -- name: CreateAccount :one
 INSERT INTO accounts (
-    owner,
-    balance,
-    currency
+  owner,
+  balance,
+  currency
 ) VALUES (
   $1, $2, $3
 ) RETURNING *;
@@ -35,5 +35,6 @@ SET balance = balance + sqlc.arg(amount)
 WHERE id = sqlc.arg(id)
 RETURNING *;
 
--- name: DeleteAccount :one
-DELETE FROM accounts WHERE id = $1 RETURNING id;
+-- name: DeleteAccount :exec
+DELETE FROM accounts
+WHERE id = $1;

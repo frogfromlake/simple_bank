@@ -140,7 +140,6 @@ func TestCreateAccountAPI(t *testing.T) {
 	}
 }
 
-// AUTH UNIT TESTS NOT WORKING
 func TestDeleteAccountAPI(t *testing.T) {
 	user, _ := randomUser(t)
 	account := randomAccount(user.Username)
@@ -249,7 +248,7 @@ func TestDeleteAccountAPI(t *testing.T) {
 				store.EXPECT().
 					DeleteAccount(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(int64(0), errors.New("Internal server error"))
+					Return(errors.New("Internal server error"))
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
@@ -270,7 +269,7 @@ func TestDeleteAccountAPI(t *testing.T) {
 				store.EXPECT().
 					DeleteAccount(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(int64(0), sql.ErrNoRows)
+					Return(sql.ErrNoRows)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -291,7 +290,7 @@ func TestDeleteAccountAPI(t *testing.T) {
 				store.EXPECT().
 					DeleteAccount(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(int64(0), sql.ErrConnDone)
+					Return(sql.ErrConnDone)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
