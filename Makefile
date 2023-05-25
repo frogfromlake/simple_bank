@@ -5,7 +5,7 @@ network:
 	docker network create bank-network
 
 up:
-	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+	docker compose -f $(DOCKER_COMPOSE_FILE) up
 
 down:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down
