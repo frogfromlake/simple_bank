@@ -97,7 +97,6 @@ deployments:
 	kubectl apply -f ./manifests/api-service.yaml; \
 	kubectl apply -f ./manifests/ingress-object.yaml; \
 	kubectl apply -f ./manifests/ingress-service.yaml; \
-	kubectl apply -f ./manifests/prometheus-object.yaml; \
 
 reset:
 	k3d cluster delete simplebank
@@ -110,14 +109,13 @@ cluster:
 	make up
 	k3d cluster create simplebank -p "8082:30080@agent:0" --agents 2 --config ./manifests/k3d-config.yaml
 	make tagandpush
-	kubectl create -f ./manifests/bundle.yaml
 	make deployments
-	sleep 5
 	helm install my-prometheus prometheus-community/prometheus --version 22.6.2
-	helm upgrade --install my-prometheus prometheus-community/prometheus --version 22.6.2 -f prometheus-helmchart/prometheus/values.yaml
-	cd prom-docker-compose/prometheus
-	docker compose up -d
-	cd ../..
+	make prom-up
+
+prom-re:
+	make prom-down
+	make prom-up
 
 prom-up:
 	cd prom-docker-compose/prometheus; \
@@ -132,7 +130,7 @@ prom-down:
 hosts:
 	sudo nano /private/etc/hosts
 
-.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush cluster reset proto evans
+.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush cluster reset proto evans prom-up prom-down prom-re
 
 # helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 # helm pull --untar prometheus-community/prometheus --version 22.6.2
