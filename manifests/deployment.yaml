@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: simplebank-postgres
-          image: registry.localhost:5000/postgres:12-alpine
+          image: registry.localhost:5000/postgres:14-alpine
           ports:
             - containerPort: 5432
           env:
@@ -34,7 +34,7 @@ spec:
               memory: 256Mi
               cpu: "0.2"
         - name: simplebank-api
-          image: registry.localhost:5000/simplebank-api:12-alpine
+          image: registry.localhost:5000/simplebank-api:14-alpine
           ports:
             - containerPort: 8080
           resources:

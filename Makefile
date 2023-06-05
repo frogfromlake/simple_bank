@@ -5,7 +5,7 @@ network:
 	docker network create bank-network
 
 up:
-	docker compose -f $(DOCKER_COMPOSE_FILE) up
+	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
 
 down:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down
@@ -14,10 +14,10 @@ postgres:
 	docker run --name postgres --network bank-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:14-alpine
 
 createdb:
-	docker exec -it postgres createdb --username=root --owner=root simple_bank
+	docker exec -it simplebank-postgres-1 createdb --username=root --owner=root simple_bank
 
 dropdb:
-	docker exec -it postgres dropdb simple_bank
+	docker exec -it simplebank-postgres-1 dropdb simple_bank
 
 # ================================================== #
 
@@ -60,7 +60,7 @@ proto:
 # ================================================== #
 
 psql:
-	docker exec -it postgres12 psql -U root -d  simple_bank
+	docker exec -it simplebank-postgres-1 psql -U root -d  simple_bank
 
 server:
 	go run main.go
@@ -85,28 +85,61 @@ dockershow:
 # ================================================== #
 
 tagandpush:
-	docker tag postgres:12-alpine registry.localhost:5000/postgres:12-alpine
-	docker push registry.localhost:5000/postgres:12-alpine
-	docker tag simplebank-api:12-alpine registry.localhost:5000/simplebank-api:12-alpine
-	docker push registry.localhost:5000/simplebank-api:12-alpine
+	docker tag postgres:14-alpine registry.localhost:5000/postgres:14-alpine
+	docker push registry.localhost:5000/postgres:14-alpine
+	docker tag simplebank-api:14-alpine registry.localhost:5000/simplebank-api:14-alpine
+	docker push registry.localhost:5000/simplebank-api:14-alpine
 
 deployments:
-	kubectl apply -f ./manifests/database-service.yaml && kubectl apply -f ./manifests/api-service.yaml && kubectl apply -f ./manifests/deployment.yaml
+
+	kubectl apply -f ./manifests/deployment.yaml; \
+	kubectl apply -f ./manifests/database-service.yaml; \
+	kubectl apply -f ./manifests/api-service.yaml; \
+	kubectl apply -f ./manifests/ingress-object.yaml; \
+	kubectl apply -f ./manifests/ingress-service.yaml; \
+	kubectl apply -f ./manifests/prometheus-object.yaml; \
 
 reset:
 	k3d cluster delete simplebank
 	make down
+	make prom-down
 	make dockerdeleteall
 	make dockershow
 
 cluster:
 	make up
-	k3d cluster create simplebank --config ./manifests/k3d-config.yaml
+	k3d cluster create simplebank -p "8082:30080@agent:0" --agents 2 --config ./manifests/k3d-config.yaml
 	make tagandpush
-	sleep 2
+	kubectl create -f ./manifests/bundle.yaml
 	make deployments
+	sleep 5
+	helm install my-prometheus prometheus-community/prometheus --version 22.6.2
+	helm upgrade --install my-prometheus prometheus-community/prometheus --version 22.6.2 -f prometheus-helmchart/prometheus/values.yaml
+	cd prom-docker-compose/prometheus
+	docker compose up -d
+	cd ../..
 
-.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush reset proto evans
+prom-up:
+	cd prom-docker-compose/prometheus; \
+	docker compose up -d; \
+	cd ../..;
+
+prom-down:
+	cd prom-docker-compose/prometheus; \
+	docker compose down;\
+	cd ../..;
+
+hosts:
+	sudo nano /private/etc/hosts
+
+.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush cluster reset proto evans
+
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# helm pull --untar prometheus-community/prometheus --version 22.6.2
+# helm install my-prometheus prometheus-community/prometheus --version 22.6.2
+# helm upgrade --install my-prometheus prometheus-community/prometheus --version 22.6.2 -f prometheus-helmchart/prometheus/values.yaml
+# kubectl port-forward svc/my-prometheus-server  9090:80 
+# http://localhost:9090/
 
 # Deployment
 # ================================================== #
