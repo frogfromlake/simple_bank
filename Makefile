@@ -96,7 +96,6 @@ deployments:
 	kubectl apply -f ./manifests/database-service.yaml; \
 	kubectl apply -f ./manifests/api-service.yaml; \
 	kubectl apply -f ./manifests/ingress-object.yaml; \
-	kubectl apply -f ./manifests/ingress-service.yaml; \
 
 reset:
 	k3d cluster delete simplebank
@@ -107,7 +106,7 @@ reset:
 
 cluster:
 	make up
-	k3d cluster create simplebank -p "8082:30080@agent:0" --agents 2 --config ./manifests/k3d-config.yaml
+	k3d cluster create simplebank --config ./manifests/k3d-config.yaml
 	make tagandpush
 	make deployments
 	helm install my-prometheus prometheus-community/prometheus --version 22.6.2
