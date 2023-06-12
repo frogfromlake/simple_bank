@@ -96,6 +96,7 @@ deployments:
 	kubectl apply -f ./manifests/database-service.yaml; \
 	kubectl apply -f ./manifests/api-service.yaml; \
 	kubectl apply -f ./manifests/ingress-object.yaml; \
+	kubectl apply -f ./manifests/ingress-service.yaml; \
 
 reset:
 	k3d cluster delete simplebank

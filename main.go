@@ -3,17 +3,20 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rakyll/statik/fs"
-	"github.com/techschool/simplebank/api"
+	// "github.com/techschool/simplebank/api"
 	db "github.com/techschool/simplebank/db/sqlc"
 	_ "github.com/techschool/simplebank/doc/statik"
 	"github.com/techschool/simplebank/gapi"
@@ -36,9 +39,32 @@ func main() {
 	}
 
 	// run db migration
-	// runDBMigration(config.MigrationURL, config.DBSource)
+	runDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewStore(conn)
+
+	// Define a new Prometheus counter metric
+	counter := prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "atemlos_durch_die_nacht",
+		Help: "This is a custom counter metric",
+	})
+
+	// Register the metric with the Prometheus default registry
+	prometheus.MustRegister(counter)
+
+	// Increment the counter value
+	counter.Inc()
+
+	// Create a new HTTP handler for serving the Prometheus metrics
+	http.Handle("/metrics", promhttp.Handler())
+
+	// Start an HTTP server on port 8080
+	fmt.Println("Starting server on port 8080")
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println("Failed to start server:", err)
+	}
+
 	go runGatewayServer(config, store)
 	runGrpcServer(config, store)
 }
@@ -126,14 +152,14 @@ func runGatewayServer(config util.Config, store db.Store) {
 	}
 }
 
-func runGinServer(config util.Config, store db.Store) {
-	server, err := api.NewServer(config, store)
-	if err != nil {
-		log.Fatal("cannot create server:", err)
-	}
+// func runGinServer(config util.Config, store db.Store) {
+// 	server, err := api.NewServer(config, store)
+// 	if err != nil {
+// 		log.Fatal("cannot create server:", err)
+// 	}
 
-	err = server.Start(config.HTTPServerAddress)
-	if err != nil {
-		log.Fatal("Cannot start server", err)
-	}
-}
+// 	err = server.Start(config.HTTPServerAddress)
+// 	if err != nil {
+// 		log.Fatal("Cannot start server", err)
+// 	}
+// }

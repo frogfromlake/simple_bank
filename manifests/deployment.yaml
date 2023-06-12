@@ -3,16 +3,22 @@ kind: Deployment
 metadata:
   labels:
     app: simplebank
+    component: api-database
   name: simplebank
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: simplebank
+      component: api-database
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
       labels:
         app: simplebank
+        component: api-database
     spec:
       containers:
         - name: simplebank-postgres
