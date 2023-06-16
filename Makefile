@@ -106,7 +106,10 @@ cluster:
 	sleep 2
 	make deployments
 
-.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush reset proto evans
+redis:
+	docker run --name redis -p 6379:6379 -d redis:7.2-rc2-alpine
+
+.PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock up down dockerdelete dockerdeleteall dockershow deployments tagandpush reset proto evans redis
 
 # Deployment
 # ================================================== #
